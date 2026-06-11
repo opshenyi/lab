@@ -1,5 +1,5 @@
 ﻿import React, { useState, useEffect } from 'react';
-import { Card, CardHeader, Badge, Button, Table } from '../../design-system/components';
+import { Card, CardHeader, Badge, Button, Table, Spinner } from '../../design-system/components';
 import { api } from '../../mock/api';
 import type { RunningContainer } from '../../types';
 
@@ -311,9 +311,7 @@ export const AdminContainers: React.FC = () => {
         style={{ border: '1px solid var(--border)', borderRadius: 30, padding: '28px 24px' }}
       >
         {loading ? (
-          <div style={{ padding: 'var(--space-8)', textAlign: 'center', color: 'var(--ink-muted)', fontSize: 14 }}>
-            正在加载容器...
-          </div>
+          <Spinner centered />
         ) : (
           <Table
             columns={columns}

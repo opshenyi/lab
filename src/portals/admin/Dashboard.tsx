@@ -1,5 +1,5 @@
 ﻿import React, { useState, useEffect } from 'react';
-import { Card, CardHeader, Badge, Button } from '../../design-system/components';
+import { Card, CardHeader, Badge, Button, Spinner } from '../../design-system/components';
 import { api } from '../../mock/api';
 import type { SystemStats, RunningContainer } from '../../types';
 
@@ -178,7 +178,7 @@ export const AdminDashboard: React.FC = () => {
   if (loading || !stats) {
     return (
       <div className="page-padding" style={pageStyle}>
-        <div style={{ color: 'var(--ink-muted)', fontSize: 14 }}>正在加载仪表盘...</div>
+        <Spinner centered />
       </div>
     );
   }

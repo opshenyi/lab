@@ -1,6 +1,6 @@
 ﻿import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { TopNav, Badge } from '../../design-system/components';
+import { TopNav, Badge, Spinner } from '../../design-system/components';
 import { api } from '../../mock/api';
 import { useAuthStore } from '../../stores/authStore';
 import type { Lab, Course } from '../../types';
@@ -24,12 +24,6 @@ export const StudentLabs: React.FC = () => {
 
   const courseMap = new Map(courses.map(c => [c.id, c]));
 
-  const getDifficultyVariant = (d: string): 'success' | 'warning' | 'error' => {
-    if (d === 'beginner') return 'success';
-    if (d === 'intermediate') return 'warning';
-    return 'error';
-  };
-
   const getStatusVariant = (s: string) => {
     if (s === 'completed') return 'success';
     if (s === 'in_progress') return 'info';
@@ -45,7 +39,7 @@ export const StudentLabs: React.FC = () => {
     return (
       <div>
         <TopNav title="实验" subtitle="实验工作台" userName={user?.name} />
-        <div style={{ padding: 'var(--space-6)', color: 'var(--ink-muted)' }}>加载中...</div>
+        <Spinner centered />
       </div>
     );
   }
@@ -62,13 +56,13 @@ export const StudentLabs: React.FC = () => {
           overflow: 'hidden',
         }}>
           {/* Header Row */}
-          <div className="table-grid-row table-grid-6col" style={{
+          <div className="table-grid-row table-grid-5col" style={{
             padding: 'var(--space-3) var(--space-5)',
             borderBottom: '1px solid var(--border)',
             background: 'var(--canvas-elevated)',
           }}>
-            {['实验名称', '课程', '难度', '状态', '截止日期', '预计时长'].map((h, idx) => (
-              <p key={h} className={idx >= 4 ? 'hide-mobile' : ''} style={{ fontSize: 14, fontWeight: 500, color: 'var(--ink-tertiary)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+            {['实验名称', '课程', '状态', '截止日期', '预计时长'].map((h, idx) => (
+              <p key={h} className={idx >= 3 ? 'hide-mobile' : ''} style={{ fontSize: 14, fontWeight: 500, color: 'var(--ink-tertiary)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                 {h}
               </p>
             ))}
@@ -79,7 +73,7 @@ export const StudentLabs: React.FC = () => {
             <div
               key={lab.id}
               onClick={() => navigate(`/student/labs/${lab.id}`)}
-              className="table-grid-row table-grid-6col"
+              className="table-grid-row table-grid-5col"
               style={{
                 padding: 'var(--space-3) var(--space-5)',
                 borderBottom: i < labs.length - 1 ? '1px solid var(--border)' : 'none',
@@ -107,12 +101,6 @@ export const StudentLabs: React.FC = () => {
                 <p style={{ fontSize: 13, color: 'var(--ink-secondary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                   {courseMap.get(lab.courseId)?.code || '--'}
                 </p>
-              </div>
-
-              <div>
-                  <Badge variant={getDifficultyVariant(lab.difficulty)} size="sm">
-                    {lab.difficulty === 'beginner' ? '初级' : lab.difficulty === 'intermediate' ? '中级' : lab.difficulty === 'advanced' ? '高级' : lab.difficulty}
-                  </Badge>
               </div>
 
               <div>

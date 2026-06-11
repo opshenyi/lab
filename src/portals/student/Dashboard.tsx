@@ -1,6 +1,6 @@
 ﻿import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { TopNav, Badge } from '../../design-system/components';
+import { TopNav, Badge, Spinner } from '../../design-system/components';
 import { api } from '../../mock/api';
 import { useAuthStore } from '../../stores/authStore';
 import type { Course, Lab, Exam, Grade } from '../../types';
@@ -58,7 +58,7 @@ export const StudentDashboard: React.FC = () => {
   const upcomingExamsList = exams.filter(e => e.status === 'published' || e.status === 'active').slice(0, 4);
   const nextLab = labs.find(l => l.status === 'in_progress') || labs.find(l => l.status !== 'completed') || labs[0];
 
-  if (loading) return <div><TopNav title="" userName={user?.name} /><div style={{ padding: 80, textAlign: 'center', color: 'var(--ink-tertiary)', fontSize: 15 }}>加载中...</div></div>;
+  if (loading) return <div><TopNav title="" userName={user?.name} /><Spinner centered /></div>;
 
   return (
     <div>
@@ -102,7 +102,7 @@ export const StudentDashboard: React.FC = () => {
           <h2 style={{ ...HOME_UI.sectionTitle, marginBottom: 24 }}>我的课程</h2>
           <div className="grid-3">
             {courses.slice(0, 3).map(c => (
-              <div key={c.id} onClick={() => navigate('/student/courses')} style={{
+              <div key={c.id} onClick={() => navigate(`/student/courses/${c.id}`)} style={{
                 ...HOME_UI.card, cursor: 'pointer', transition: 'background 0.12s ease',
               }}
               >
@@ -135,9 +135,6 @@ export const StudentDashboard: React.FC = () => {
                 <p style={{ fontSize: 14, color: 'var(--ink-tertiary)', marginTop: 4 }}>{lab.templateName} &middot; {lab.estimatedMinutes} 分钟</p>
               </div>
               <div style={{ display: 'flex', gap: 8 }}>
-                <Badge variant={lab.difficulty === 'beginner' ? 'success' : lab.difficulty === 'intermediate' ? 'warning' : 'error'} size="sm">
-                  {lab.difficulty === 'beginner' ? '初级' : lab.difficulty === 'intermediate' ? '中级' : '高级'}
-                </Badge>
                 <Badge variant={lab.status === 'completed' ? 'success' : lab.status === 'in_progress' ? 'info' : 'default'} size="sm">
                   {lab.status === 'completed' ? '已完成' : lab.status === 'in_progress' ? '进行中' : '未开始'}
                 </Badge>

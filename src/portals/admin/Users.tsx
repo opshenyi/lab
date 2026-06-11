@@ -1,5 +1,5 @@
 ﻿import React, { useState, useEffect } from 'react';
-import { Card, CardHeader, Badge, Button, Table, Input } from '../../design-system/components';
+import { Card, CardHeader, Badge, Button, Table, Input, Spinner } from '../../design-system/components';
 import { api } from '../../mock/api';
 import type { User } from '../../types';
 
@@ -211,9 +211,7 @@ export const AdminUsers: React.FC = () => {
           </div>
         </div>
         {loading ? (
-          <div style={{ padding: 'var(--space-8)', textAlign: 'center', color: 'var(--ink-muted)', fontSize: 14 }}>
-            正在加载用户...
-          </div>
+          <Spinner centered />
         ) : (
           <Table
             columns={columns}

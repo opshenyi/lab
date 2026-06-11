@@ -1,6 +1,6 @@
 ﻿import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { TopNav, Card, Badge, Button } from '../../design-system/components';
+import { TopNav, Card, Badge, Button, Spinner } from '../../design-system/components';
 import { api } from '../../mock/api';
 import { useAuthStore } from '../../stores/authStore';
 import type { Exam } from '../../types';
@@ -45,7 +45,7 @@ export const StudentExams: React.FC = () => {
     return (
       <div>
         <TopNav title="考试" subtitle="你的考试" userName={user?.name} />
-        <div style={{ padding: 'var(--space-6)', color: 'var(--ink-muted)' }}>加载中...</div>
+        <Spinner centered />
       </div>
     );
   }

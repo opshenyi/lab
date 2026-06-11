@@ -6,6 +6,7 @@ import { AdminLayout } from './layouts/AdminLayout';
 import { Login } from './portals/Login';
 import { StudentDashboard } from './portals/student/Dashboard';
 import { StudentCourses } from './portals/student/Courses';
+import { StudentCourseDetail } from './portals/student/CourseDetail';
 import { StudentLabs } from './portals/student/Labs';
 import { StudentLabWorkspace } from './portals/student/LabWorkspace';
 import { StudentExams } from './portals/student/Exams';
@@ -34,6 +35,7 @@ const App: React.FC = () => {
         <Route path="/student" element={<StudentLayout />}>
           <Route index element={<StudentDashboard />} />
           <Route path="courses" element={<StudentCourses />} />
+          <Route path="courses/:courseId" element={<StudentCourseDetail />} />
           <Route path="labs" element={<StudentLabs />} />
           <Route path="labs/:labId" element={<StudentLabWorkspace />} />
           <Route path="exams" element={<StudentExams />} />

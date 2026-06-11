@@ -10,3 +10,4 @@ export { Sidebar, SidebarProvider, useSidebar } from './Sidebar';
 export type { SidebarItem } from './Sidebar';
 export { TopNav } from './TopNav';
 export { ThemeSwitcher } from './ThemeSwitcher';
+export { Spinner } from './Spinner';

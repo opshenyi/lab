@@ -1,5 +1,5 @@
 ﻿import React, { useState, useEffect } from 'react';
-import { TopNav, Card, Badge, Table, Button } from '../../design-system/components';
+import { TopNav, Card, Badge, Table, Button, Spinner } from '../../design-system/components';
 import { api } from '../../mock/api';
 import { useAuthStore } from '../../stores/authStore';
 import type { Exam } from '../../types';
@@ -139,9 +139,11 @@ export const TeacherExams: React.FC = () => {
             <h2 style={{ fontSize: 22, fontWeight: 600, color: 'var(--ink)', letterSpacing: '-0.396px' }}>
               所有考试
             </h2>
-            <p style={{ fontSize: 13, color: 'var(--ink-muted)', marginTop: 'var(--space-1)' }}>
-              {loading ? '加载中...' : `共 ${exams.length} 场考试`}
-            </p>
+            {!loading && (
+              <p style={{ fontSize: 13, color: 'var(--ink-muted)', marginTop: 'var(--space-1)' }}>
+                共 {exams.length} 场考试
+              </p>
+            )}
           </div>
           <Button variant="primary" size="md">新建考试</Button>
         </div>
@@ -149,11 +151,15 @@ export const TeacherExams: React.FC = () => {
         <Card padding="none"
           style={{ border: '1px solid var(--border)', borderRadius: 30, padding: '28px 24px' }}
         >
-          <Table
-            columns={columns}
-            data={exams}
-            emptyText="暂无考试"
-          />
+          {loading ? (
+            <Spinner centered />
+          ) : (
+            <Table
+              columns={columns}
+              data={exams}
+              emptyText="暂无考试"
+            />
+          )}
         </Card>
       </div>
     </div>

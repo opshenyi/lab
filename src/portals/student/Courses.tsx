@@ -1,9 +1,21 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { TopNav, Card, Badge } from '../../design-system/components';
+import { TopNav, Badge, Spinner } from '../../design-system/components';
 import { api } from '../../mock/api';
 import { useAuthStore } from '../../stores/authStore';
 import type { Course } from '../../types';
+import './Courses.css';
+
+const statusLabelMap: Record<Course['status'], string> = {
+  active: '进行中',
+  archived: '已归档',
+  draft: '草稿',
+};
+
+const getCourseVideoCount = (course: Course) => {
+  if (course.labCount === 0) return 2;
+  return Math.min(4, Math.max(2, Math.ceil(course.labCount / 2)));
+};
 
 export const StudentCourses: React.FC = () => {
   const navigate = useNavigate();
@@ -29,76 +41,64 @@ export const StudentCourses: React.FC = () => {
   if (loading) {
     return (
       <div>
-        <TopNav title="课程" subtitle="你已选的课程" userName={user?.name} />
-        <div style={{ padding: 'var(--space-6)', color: 'var(--ink-muted)' }}>加载中...</div>
+        <TopNav title="" userName={user?.name} />
+        <Spinner centered />
       </div>
     );
   }
 
   return (
     <div>
-      <TopNav title="课程" subtitle={`共 ${courses.length} 门已选课程`} userName={user?.name} />
+      <TopNav title="" userName={user?.name} />
 
       <div className="page-padding">
-        <div className="grid-3">
-          {courses.map((course) => (
-            <Card key={course.id} hoverable padding="none" onClick={() => navigate('/student/labs')}
-              style={{ border: '1px solid var(--border)', borderRadius: 30, padding: '28px 24px', transition: 'background 0.12s', cursor: 'pointer' }}
-            >
-              {/* Cover Band */}
-              <div style={{
-                height: 4,
-                background: course.coverColor,
-                borderRadius: '24px 24px 0 0',
-              }} />
+        <div className="student-courses-page">
+          <div className="student-courses-toolbar">
+            <div className="student-courses-summary" aria-label="课程概况">
+              <span>已选 {courses.length} 门课程</span>
+            </div>
+          </div>
 
-              <div style={{ padding: 'var(--space-5)' }}>
-                {/* Header */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 'var(--space-3)' }}>
-                  <div style={{ minWidth: 0 }}>
-                    <p style={{ fontSize: 14, fontWeight: 500, color: 'var(--ink-tertiary)', letterSpacing: '0.5px', textTransform: 'uppercase', marginBottom: 'var(--space-1)' }}>
-                      {course.code}
-                    </p>
-                    <h3 style={{ fontSize: 22, fontWeight: 600, color: 'var(--ink)', margin: 0, lineHeight: 1.25, letterSpacing: '-0.396px' }}>
-                      {course.name}
-                    </h3>
-                  </div>
+          <div className="student-courses-grid">
+            {courses.map((course) => (
+              <button
+                key={course.id}
+                type="button"
+                className="student-course-card"
+                onClick={() => navigate(`/student/courses/${course.id}`)}
+              >
+                <span className="student-course-card-head">
+                  <span className="student-course-code">{course.code}</span>
                   <Badge variant={getStatusVariant(course.status)} size="sm">
-                    {course.status === 'active' ? '进行中' : course.status === 'archived' ? '已归档' : course.status}
+                    {statusLabelMap[course.status] ?? course.status}
                   </Badge>
-                </div>
+                </span>
 
-                {/* Description */}
-                <p style={{ fontSize: 16, fontWeight: 400, color: 'var(--ink-secondary)', lineHeight: 1.44, marginBottom: 'var(--space-4)', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                  {course.description}
-                </p>
+                <span className="student-course-card-body">
+                  <span className="student-course-title">{course.name}</span>
+                  <span className="student-course-teacher">{course.teacherName}</span>
+                  <span className="student-course-desc">
+                    {course.description}
+                  </span>
+                </span>
 
-                {/* Teacher */}
-                <p style={{ fontSize: 16, fontWeight: 400, color: 'var(--ink-secondary)', lineHeight: 1.44, marginBottom: 'var(--space-4)' }}>
-                  {course.teacherName}
-                </p>
-
-                {/* Stats Row */}
-                <div style={{
-                  display: 'flex',
-                  gap: 'var(--space-4)',
-                  paddingTop: 'var(--space-3)',
-                  borderTop: '1px solid var(--border)',
-                }}>
-                  {[
-                    { label: '学生数', value: course.studentCount },
-                    { label: '实验数', value: course.labCount },
-                    { label: '考试数', value: course.examCount },
-                  ].map((stat) => (
-                    <div key={stat.label} style={{ textAlign: 'center' }}>
-                      <p style={{ fontSize: 48, fontWeight: 900, letterSpacing: '-2.5px', lineHeight: 0.85, color: 'var(--ink)' }}>{stat.value}</p>
-                      <p style={{ fontSize: 14, fontWeight: 500, color: 'var(--ink-tertiary)' }}>{stat.label}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </Card>
-          ))}
+                <span className="student-course-card-foot">
+                  <span>
+                    <strong>{course.labCount}</strong>
+                    实验
+                  </span>
+                  <span>
+                    <strong>{course.examCount}</strong>
+                    考试
+                  </span>
+                  <span>
+                    <strong>{getCourseVideoCount(course)}</strong>
+                    视频
+                  </span>
+                </span>
+              </button>
+            ))}
+          </div>
         </div>
       </div>
     </div>

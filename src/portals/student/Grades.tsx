@@ -1,5 +1,5 @@
 ﻿import React, { useState, useEffect } from 'react';
-import { TopNav } from '../../design-system/components';
+import { TopNav, Spinner } from '../../design-system/components';
 import { api } from '../../mock/api';
 import { useAuthStore } from '../../stores/authStore';
 import type { Grade } from '../../types';
@@ -53,7 +53,7 @@ export const StudentGrades: React.FC = () => {
     return (
       <div>
         <TopNav title="成绩" subtitle="你的学业表现" userName={user?.name} />
-        <div style={{ padding: 'var(--space-6)', color: 'var(--ink-muted)' }}>加载中...</div>
+        <Spinner centered />
       </div>
     );
   }

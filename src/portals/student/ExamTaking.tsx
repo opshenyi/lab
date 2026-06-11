@@ -1,10 +1,11 @@
-﻿import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { TopNav, Button, Badge } from '../../design-system/components';
+import { TopNav, Button, Spinner } from '../../design-system/components';
 import { api } from '../../mock/api';
 import { useAuthStore } from '../../stores/authStore';
 import { useCountdown } from '../../hooks/useCountdown';
 import type { Exam, Question } from '../../types';
+import './ExamTaking.css';
 
 const mockExamQuestions: Question[] = [
   {
@@ -79,12 +80,11 @@ export const StudentExamTaking: React.FC = () => {
   const [answers, setAnswers] = useState<Record<string, string | string[]>>({});
 
   const handleTimeUp = useCallback(() => {
-    // Auto-submit on time up
     alert('考试时间已到！你的考试已自动提交。');
     navigate('/student/exams');
   }, [navigate]);
 
-  const { formatted, percentage, isRunning, start } = useCountdown(
+  const { formatted, percentage, start } = useCountdown(
     (exam?.durationMinutes || 60) * 60,
     handleTimeUp
   );
@@ -99,7 +99,6 @@ export const StudentExamTaking: React.FC = () => {
     load();
   }, [examId]);
 
-  // Auto-start timer when exam loads
   useEffect(() => {
     if (exam && !loading) {
       start();
@@ -142,20 +141,13 @@ export const StudentExamTaking: React.FC = () => {
     navigate('/student/exams');
   };
 
-  const getDifficultyVariant = (d: string): 'success' | 'warning' | 'error' => {
-    if (d === 'easy') return 'success';
-    if (d === 'medium') return 'warning';
-    return 'error';
-  };
-
-  // Timer bar color based on remaining time
-  const timerBarColor = percentage > 50 ? 'var(--accent)' : percentage > 20 ? 'var(--warning)' : 'var(--error)';
+  const timerTone = percentage > 50 ? 'steady' : percentage > 20 ? 'warning' : 'danger';
 
   if (loading) {
     return (
       <div>
-        <TopNav title="考试" userName={user?.name} />
-        <div style={{ padding: 'var(--space-6)', color: 'var(--ink-muted)' }}>加载中...</div>
+        <TopNav title="" userName={user?.name} />
+        <Spinner centered />
       </div>
     );
   }
@@ -163,345 +155,160 @@ export const StudentExamTaking: React.FC = () => {
   if (!exam) {
     return (
       <div>
-        <TopNav title="考试" userName={user?.name} />
-        <div style={{ padding: 'var(--space-6)', color: 'var(--ink-muted)' }}>未找到该考试。</div>
+        <TopNav title="" userName={user?.name} />
+        <div className="page-padding">
+          <p className="student-exam-taking-empty">未找到该考试。</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
-      {/* Top Bar */}
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: 'var(--space-3) var(--space-5)',
-        borderBottom: '1px solid var(--border)',
-        flexShrink: 0,
-      }}>
-        <div>
-          <h2 style={{ fontSize: 15, fontWeight: 600, color: 'var(--ink)', margin: 0 }}>
-            {exam.title}
-          </h2>
-          <p style={{ fontSize: 12, color: 'var(--ink-muted)', margin: 0 }}>
-            {exam.courseName}
-          </p>
-        </div>
+    <div>
+      <TopNav title="" userName={user?.name} />
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-5)' }}>
-          {/* Progress */}
-          <p style={{ fontSize: 13, color: 'var(--ink-secondary)' }}>
-            {answeredCount}/{questions.length} 已答题
-          </p>
-
-          {/* Timer */}
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 'var(--space-2)',
-            padding: 'var(--space-1) var(--space-3)',
-            background: 'var(--canvas-elevated)',
-            borderRadius: 8,
-          }}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={timerBarColor} strokeWidth="2">
-              <circle cx="12" cy="12" r="10" />
-              <polyline points="12,6 12,12 16,14" />
-            </svg>
-            <span style={{ fontFamily: 'var(--font-mono)', fontSize: 14, fontWeight: 600, color: timerBarColor }}>
-              {formatted}
-            </span>
+      <div className="page-padding student-exam-taking-page">
+        <section className="student-exam-taking-overview">
+          <div className="student-exam-taking-title">
+            <span>{exam.courseName}</span>
+            <h1>{exam.title}</h1>
           </div>
 
-          {/* Timer Progress Bar */}
-          <div style={{ width: 120, height: 4, background: 'var(--canvas-elevated)', borderRadius: 2 }}>
-            <div style={{
-              width: `${percentage}%`,
-              height: '100%',
-              background: timerBarColor,
-              borderRadius: 2,
-              transition: 'width 1s linear',
-            }} />
-          </div>
-
-          <Button variant="primary" size="sm" onClick={handleSubmit}>
-            提交考试
-          </Button>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
-        {/* Left: Question Navigation Sidebar */}
-        <div style={{
-          width: 220,
-          borderRight: '1px solid var(--border)',
-          display: 'flex',
-          flexDirection: 'column',
-          flexShrink: 0,
-        }}>
-          <div style={{ padding: 'var(--space-4) var(--space-4)', borderBottom: '1px solid var(--border)' }}>
-            <p style={{ fontSize: 12, fontWeight: 600, color: 'var(--ink-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-              题目
-            </p>
-          </div>
-          <div style={{ padding: 'var(--space-3)', display: 'flex', flexDirection: 'column', gap: 'var(--space-2)', overflow: 'auto' }}>
-            {questions.map((q, i) => {
-              const status = getQuestionStatus(q.id);
-              const isActive = i === currentIndex;
-              return (
-                <button
-                  key={q.id}
-                  onClick={() => setCurrentIndex(i)}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 'var(--space-3)',
-                    padding: 'var(--space-2) var(--space-3)',
-                    background: isActive ? 'var(--accent-muted)' : 'transparent',
-                    border: isActive ? '1px solid var(--accent)' : '1px solid transparent',
-                    borderRadius: 8,
-                    cursor: 'pointer',
-                    textAlign: 'left',
-                    width: '100%',
-                    transition: 'background 0.15s',
-                  }}
-                >
-                  <div style={{
-                    width: 24,
-                    height: 24,
-                    borderRadius: '50%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: 12,
-                    fontWeight: 600,
-                    background: status === 'answered' ? 'var(--success-muted)' : 'var(--canvas-elevated)',
-                    color: status === 'answered' ? 'var(--success)' : 'var(--ink-muted)',
-                    border: status === 'answered' ? '1px solid var(--success)' : '1px solid var(--border)',
-                    flexShrink: 0,
-                  }}>
-                    {status === 'answered' ? (
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
-                        <polyline points="20,6 9,17 4,12" />
-                      </svg>
-                    ) : (
-                      i + 1
-                    )}
-                  </div>
-                  <div style={{ minWidth: 0 }}>
-                    <p style={{
-                      fontSize: 13,
-                      fontWeight: isActive ? 600 : 400,
-                      color: isActive ? 'var(--ink)' : 'var(--ink-secondary)',
-                      whiteSpace: 'nowrap',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                    }}>
-                      {q.title}
-                    </p>
-                    <p style={{ fontSize: 11, color: 'var(--ink-soft)' }}>
-                      {q.points} 分
-                    </p>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Right: Question Content & Answer Area */}
-        <div style={{ flex: 1, overflow: 'auto', padding: 'var(--space-8)' }}>
-          <div style={{ maxWidth: 720 }}>
-            {/* Question Header */}
-            <div style={{ marginBottom: 'var(--space-6)' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', marginBottom: 'var(--space-3)' }}>
-                <p style={{ fontSize: 12, color: 'var(--ink-soft)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                  题目 {currentIndex + 1} / {questions.length}
-                </p>
-                <Badge variant={getDifficultyVariant(currentQuestion.difficulty)} size="sm">
-                  {currentQuestion.difficulty === 'easy' ? '简单' : currentQuestion.difficulty === 'medium' ? '中等' : currentQuestion.difficulty === 'hard' ? '困难' : currentQuestion.difficulty}
-                </Badge>
-                <span style={{ fontSize: 12, color: 'var(--ink-soft)' }}>
-                  {currentQuestion.points} 分值
-                </span>
-              </div>
-              <h3 style={{ fontSize: 20, fontWeight: 600, color: 'var(--ink)', marginBottom: 'var(--space-3)' }}>
-                {currentQuestion.title}
-              </h3>
-              <p style={{ fontSize: 15, color: 'var(--ink-secondary)', lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>
-                {currentQuestion.content}
-              </p>
+          <div className="student-exam-taking-controls">
+            <div className="student-exam-taking-progress" aria-label="答题进度">
+              <strong>{answeredCount}</strong>
+              <span>/ {questions.length} 已答</span>
             </div>
 
-            {/* Separator */}
-            <div style={{ height: 1, background: 'var(--border)', marginBottom: 'var(--space-6)' }} />
+            <div className={`student-exam-taking-timer student-exam-taking-timer-${timerTone}`} aria-label="剩余时间">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="12" cy="12" r="9" />
+                <path d="M12 7v5l3 2" />
+              </svg>
+              <span>{formatted}</span>
+            </div>
 
-            {/* Answer Area */}
-            <div>
-              <p style={{ fontSize: 12, fontWeight: 600, color: 'var(--ink-muted)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 'var(--space-3)' }}>
-                你的答案
-              </p>
+            <Button variant="primary" size="sm" onClick={handleSubmit}>
+              提交考试
+            </Button>
+          </div>
+        </section>
 
-              {/* Choice: Radio Buttons */}
+        <div className="student-exam-taking-layout">
+          <aside className="student-exam-question-list" aria-label="题目导航">
+            <div className="student-exam-question-list-head">
+              <span>题目</span>
+              <strong>{currentIndex + 1}/{questions.length}</strong>
+            </div>
+
+            <div className="student-exam-question-nav">
+              {questions.map((q, i) => {
+                const status = getQuestionStatus(q.id);
+                const isActive = i === currentIndex;
+                return (
+                  <button
+                    key={q.id}
+                    type="button"
+                    className={`student-exam-question-nav-item${isActive ? ' is-active' : ''}${status === 'answered' ? ' is-answered' : ''}`}
+                    onClick={() => setCurrentIndex(i)}
+                  >
+                    <span className="student-exam-question-number">
+                      {status === 'answered' ? (
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                          <path d="m20 6-11 11-5-5" />
+                        </svg>
+                      ) : (
+                        i + 1
+                      )}
+                    </span>
+                    <span className="student-exam-question-nav-copy">
+                      <strong>{q.title}</strong>
+                      <small>{q.points} 分</small>
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </aside>
+
+          <main className="student-exam-question-panel">
+            <div className="student-exam-question-meta">
+              <span>第 {currentIndex + 1} 题</span>
+              <span>{currentQuestion.points} 分</span>
+            </div>
+
+            <div className="student-exam-question-content">
+              <h2>{currentQuestion.title}</h2>
+              <p>{currentQuestion.content}</p>
+            </div>
+
+            <section className="student-exam-answer-section" aria-label="你的答案">
+              <span className="student-exam-answer-label">你的答案</span>
+
               {currentQuestion.type === 'choice' && currentQuestion.options && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
+                <div className="student-exam-choice-list">
                   {currentQuestion.options.map((opt) => {
                     const isSelected = answers[currentQuestion.id] === opt.id;
                     return (
-                      <label
+                      <button
                         key={opt.id}
+                        type="button"
+                        className={`student-exam-choice${isSelected ? ' is-selected' : ''}`}
+                        aria-pressed={isSelected}
                         onClick={() => setAnswer(currentQuestion.id, opt.id)}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 'var(--space-3)',
-                          padding: 'var(--space-3) var(--space-4)',
-                          background: isSelected ? 'var(--accent-muted)' : 'var(--canvas-elevated)',
-                          border: `1px solid ${isSelected ? 'var(--accent)' : 'var(--border)'}`,
-                          borderRadius: 8,
-                          cursor: 'pointer',
-                          transition: 'all 0.15s',
-                        }}
                       >
-                        <div style={{
-                          width: 20,
-                          height: 20,
-                          borderRadius: '50%',
-                          border: `2px solid ${isSelected ? 'var(--accent)' : 'var(--border)'}`,
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          flexShrink: 0,
-                        }}>
-                          {isSelected && (
-                            <div style={{
-                              width: 10,
-                              height: 10,
-                              borderRadius: '50%',
-                              background: 'var(--accent)',
-                            }} />
-                          )}
-                        </div>
-                        <span style={{ fontWeight: 600, fontSize: 13, color: 'var(--ink-muted)', marginRight: 'var(--space-2)' }}>
-                          {opt.label}.
-                        </span>
-                        <span style={{ fontSize: 14, color: isSelected ? 'var(--ink)' : 'var(--ink-secondary)' }}>
-                          {opt.content}
-                        </span>
-                      </label>
+                        <span className="student-exam-choice-mark" aria-hidden="true" />
+                        <span className="student-exam-choice-label">{opt.label}</span>
+                        <span className="student-exam-choice-text">{opt.content}</span>
+                      </button>
                     );
                   })}
                 </div>
               )}
 
-              {/* Multi Choice */}
               {currentQuestion.type === 'multi_choice' && currentQuestion.options && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-2)' }}>
+                <div className="student-exam-choice-list">
                   {currentQuestion.options.map((opt) => {
                     const selected = (answers[currentQuestion.id] as string[]) || [];
                     const isSelected = selected.includes(opt.id);
                     return (
-                      <label
+                      <button
                         key={opt.id}
+                        type="button"
+                        className={`student-exam-choice student-exam-choice-checkbox${isSelected ? ' is-selected' : ''}`}
+                        aria-pressed={isSelected}
                         onClick={() => toggleMultiChoice(currentQuestion.id, opt.id)}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 'var(--space-3)',
-                          padding: 'var(--space-3) var(--space-4)',
-                          background: isSelected ? 'var(--accent-muted)' : 'var(--canvas-elevated)',
-                          border: `1px solid ${isSelected ? 'var(--accent)' : 'var(--border)'}`,
-                          borderRadius: 8,
-                          cursor: 'pointer',
-                          transition: 'all 0.15s',
-                        }}
                       >
-                        <div style={{
-                          width: 20,
-                          height: 20,
-                          borderRadius: 4,
-                          border: `2px solid ${isSelected ? 'var(--accent)' : 'var(--border)'}`,
-                          background: isSelected ? 'var(--accent)' : 'transparent',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          flexShrink: 0,
-                        }}>
-                          {isSelected && (
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--accent-contrast)" strokeWidth="3">
-                              <polyline points="20,6 9,17 4,12" />
-                            </svg>
-                          )}
-                        </div>
-                        <span style={{ fontWeight: 600, fontSize: 13, color: 'var(--ink-muted)', marginRight: 'var(--space-2)' }}>
-                          {opt.label}.
-                        </span>
-                        <span style={{ fontSize: 14, color: isSelected ? 'var(--ink)' : 'var(--ink-secondary)' }}>
-                          {opt.content}
-                        </span>
-                      </label>
+                        <span className="student-exam-choice-mark" aria-hidden="true" />
+                        <span className="student-exam-choice-label">{opt.label}</span>
+                        <span className="student-exam-choice-text">{opt.content}</span>
+                      </button>
                     );
                   })}
                 </div>
               )}
 
-              {/* Short Answer */}
               {currentQuestion.type === 'short_answer' && (
                 <input
+                  className="student-exam-text-input"
                   type="text"
                   value={(answers[currentQuestion.id] as string) || ''}
                   onChange={e => setAnswer(currentQuestion.id, e.target.value)}
-                  placeholder="请在此输入答案..."
-                  style={{
-                    width: '100%',
-                    padding: 'var(--space-3) var(--space-4)',
-                    background: 'var(--canvas-elevated)',
-                    border: '1px solid var(--border)',
-                    borderRadius: 8,
-                    color: 'var(--ink)',
-                    fontSize: 14,
-                    outline: 'none',
-                  }}
-                  onFocus={e => (e.target.style.borderColor = 'var(--accent)')}
-                  onBlur={e => (e.target.style.borderColor = 'var(--border)')}
+                  placeholder="请在此输入答案"
                 />
               )}
 
-              {/* Code */}
               {currentQuestion.type === 'code' && (
                 <textarea
+                  className="student-exam-code-input"
                   value={(answers[currentQuestion.id] as string) || ''}
                   onChange={e => setAnswer(currentQuestion.id, e.target.value)}
-                  placeholder="请在此编写代码..."
-                  style={{
-                    width: '100%',
-                    minHeight: 240,
-                    padding: 'var(--space-4)',
-                    background: '#0a0a0a',
-                    border: '1px solid var(--border)',
-                    borderRadius: 8,
-                    color: 'var(--ink)',
-                    fontSize: 14,
-                    fontFamily: 'var(--font-mono)',
-                    lineHeight: 1.6,
-                    resize: 'vertical',
-                    outline: 'none',
-                  }}
-                  onFocus={e => (e.target.style.borderColor = 'var(--accent)')}
-                  onBlur={e => (e.target.style.borderColor = 'var(--border)')}
+                  placeholder="请在此编写代码"
                 />
               )}
-            </div>
+            </section>
 
-            {/* Navigation Buttons */}
-            <div style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              marginTop: 'var(--space-8)',
-              paddingTop: 'var(--space-5)',
-              borderTop: '1px solid var(--border)',
-            }}>
+            <div className="student-exam-navigation">
               <Button
                 variant="secondary"
                 size="sm"
@@ -524,7 +331,7 @@ export const StudentExamTaking: React.FC = () => {
                 </Button>
               )}
             </div>
-          </div>
+          </main>
         </div>
       </div>
     </div>

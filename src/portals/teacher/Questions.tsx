@@ -1,5 +1,5 @@
 ﻿import React, { useState, useEffect, useMemo } from 'react';
-import { TopNav, Card, Badge, Table, Button, Tabs, Input } from '../../design-system/components';
+import { TopNav, Card, Badge, Table, Button, Tabs, Input, Spinner } from '../../design-system/components';
 import { api } from '../../mock/api';
 import { useAuthStore } from '../../stores/authStore';
 import type { Question, QuestionType } from '../../types';
@@ -167,9 +167,11 @@ export const TeacherQuestions: React.FC = () => {
             <h2 style={{ fontSize: 22, fontWeight: 600, color: 'var(--ink)', letterSpacing: '-0.396px' }}>
               题目
             </h2>
-            <p style={{ fontSize: 13, color: 'var(--ink-muted)', marginTop: 'var(--space-1)' }}>
-              {loading ? '加载中...' : `共 ${filtered.length} 道题目`}
-            </p>
+            {!loading && (
+              <p style={{ fontSize: 13, color: 'var(--ink-muted)', marginTop: 'var(--space-1)' }}>
+                共 {filtered.length} 道题目
+              </p>
+            )}
           </div>
           <Button variant="primary" size="md">新建题目</Button>
         </div>
@@ -200,11 +202,15 @@ export const TeacherQuestions: React.FC = () => {
           <Card padding="none"
             style={{ border: '1px solid var(--border)', borderRadius: 30, padding: '28px 24px' }}
           >
-            <Table
-              columns={columns}
-              data={filtered}
-              emptyText="暂无符合条件的题目"
-            />
+            {loading ? (
+              <Spinner centered />
+            ) : (
+              <Table
+                columns={columns}
+                data={filtered}
+                emptyText="暂无符合条件的题目"
+              />
+            )}
           </Card>
         </div>
       </div>

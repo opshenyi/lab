@@ -1,6 +1,6 @@
 ﻿import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { TopNav, Button, Badge } from '../../design-system/components';
+import { TopNav, Button, Spinner } from '../../design-system/components';
 import { api } from '../../mock/api';
 import { useAuthStore } from '../../stores/authStore';
 import { useTerminal } from '../../hooks/useTerminal';
@@ -43,17 +43,11 @@ export const StudentLabWorkspace: React.FC = () => {
     return `${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
   };
 
-  const getDifficultyVariant = (d: string): 'success' | 'warning' | 'error' => {
-    if (d === 'beginner') return 'success';
-    if (d === 'intermediate') return 'warning';
-    return 'error';
-  };
-
   if (loading) {
     return (
       <div>
         <TopNav title="实验工作台" userName={user?.name} />
-        <div style={{ padding: 'var(--space-6)', color: 'var(--ink-muted)' }}>加载中...</div>
+        <Spinner centered />
       </div>
     );
   }
@@ -108,10 +102,6 @@ export const StudentLabWorkspace: React.FC = () => {
               {lab.templateName}
             </p>
           </div>
-
-          <Badge variant={getDifficultyVariant(lab.difficulty)} size="sm">
-            {lab.difficulty === 'beginner' ? '初级' : lab.difficulty === 'intermediate' ? '中级' : lab.difficulty === 'advanced' ? '高级' : lab.difficulty}
-          </Badge>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>

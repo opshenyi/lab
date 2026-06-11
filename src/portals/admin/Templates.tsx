@@ -1,5 +1,5 @@
 ﻿import React, { useState, useEffect } from 'react';
-import { Card, CardHeader, Badge, Button, Table, Input, Textarea } from '../../design-system/components';
+import { Card, CardHeader, Badge, Button, Table, Input, Textarea, Spinner } from '../../design-system/components';
 import { api } from '../../mock/api';
 import type { ContainerTemplate } from '../../types';
 
@@ -195,9 +195,7 @@ export const AdminTemplates: React.FC = () => {
           <Input placeholder="搜索模板..." style={{ maxWidth: 320 }} />
         </div>
         {loading ? (
-          <div style={{ padding: 'var(--space-8)', textAlign: 'center', color: 'var(--ink-muted)', fontSize: 14 }}>
-            正在加载模板...
-          </div>
+          <Spinner centered />
         ) : (
           <Table
             columns={columns}
