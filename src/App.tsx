@@ -9,6 +9,7 @@ import { StudentCourses } from './portals/student/Courses';
 import { StudentCourseDetail } from './portals/student/CourseDetail';
 import { StudentLabs } from './portals/student/Labs';
 import { StudentLabWorkspace } from './portals/student/LabWorkspace';
+import { StudentAIAssistant } from './portals/student/AIAssistant';
 import { StudentExams } from './portals/student/Exams';
 import { StudentExamTaking } from './portals/student/ExamTaking';
 import { StudentGrades } from './portals/student/Grades';
@@ -38,6 +39,7 @@ const App: React.FC = () => {
           <Route path="courses/:courseId" element={<StudentCourseDetail />} />
           <Route path="labs" element={<StudentLabs />} />
           <Route path="labs/:labId" element={<StudentLabWorkspace />} />
+          <Route path="assistant" element={<StudentAIAssistant />} />
           <Route path="exams" element={<StudentExams />} />
           <Route path="exams/:examId" element={<StudentExamTaking />} />
           <Route path="grades" element={<StudentGrades />} />

@@ -46,7 +46,7 @@ export const StudentLabWorkspace: React.FC = () => {
   if (loading) {
     return (
       <div>
-        <TopNav title="实验工作台" userName={user?.name} />
+        <TopNav title="实例管理" userName={user?.name} />
         <Spinner centered />
       </div>
     );
@@ -55,7 +55,7 @@ export const StudentLabWorkspace: React.FC = () => {
   if (!lab) {
     return (
       <div>
-        <TopNav title="实验工作台" userName={user?.name} />
+        <TopNav title="实例管理" userName={user?.name} />
         <div style={{ padding: 'var(--space-6)', color: 'var(--ink-muted)' }}>未找到该实验。</div>
       </div>
     );
@@ -89,7 +89,7 @@ export const StudentLabWorkspace: React.FC = () => {
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <polyline points="15,18 9,12 15,6" />
             </svg>
-            返回
+            返回实例
           </button>
 
           <div style={{ width: 1, height: 20, background: 'var(--border)' }} />

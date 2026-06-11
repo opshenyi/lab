@@ -1,44 +1,79 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { TopNav, Badge, Spinner } from '../../design-system/components';
+import { TopNav, Button, Spinner } from '../../design-system/components';
 import { api } from '../../mock/api';
 import { useAuthStore } from '../../stores/authStore';
-import type { Lab, Course } from '../../types';
+import type { Course, Lab, RunningContainer } from '../../types';
+import './Labs.css';
+
+const getStatusLabel = (status: RunningContainer['status']) => {
+  const labels: Record<RunningContainer['status'], string> = {
+    running: '运行中',
+    paused: '已暂停',
+    stopped: '已停止',
+    error: '异常',
+  };
+  return labels[status];
+};
+
+const getMemoryPercent = (container: RunningContainer) => {
+  const limit = container.memoryLimit.includes('Gi')
+    ? Number.parseInt(container.memoryLimit, 10) * 1024
+    : Number.parseInt(container.memoryLimit, 10);
+
+  if (!Number.isFinite(limit) || limit <= 0) return 0;
+  return Math.min(100, Math.round((container.memoryUsage / limit) * 100));
+};
+
+const formatDateTime = (date: string) => {
+  return new Date(date).toLocaleString('zh-CN', {
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+};
 
 export const StudentLabs: React.FC = () => {
   const navigate = useNavigate();
   const user = useAuthStore(s => s.user);
+  const [containers, setContainers] = useState<RunningContainer[]>([]);
   const [labs, setLabs] = useState<Lab[]>([]);
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const load = async () => {
-      const [l, c] = await Promise.all([api.getLabs(), api.getCourses()]);
-      setLabs(l);
-      setCourses(c);
+      const [containerData, labData, courseData] = await Promise.all([
+        api.getContainers(),
+        api.getLabs(),
+        api.getCourses(),
+      ]);
+      setContainers(containerData.filter(container => container.studentId === user?.id));
+      setLabs(labData);
+      setCourses(courseData);
       setLoading(false);
     };
+
     load();
-  }, []);
+  }, [user?.id]);
 
-  const courseMap = new Map(courses.map(c => [c.id, c]));
+  const labMap = new Map(labs.map(lab => [lab.id, lab]));
+  const courseMap = new Map(courses.map(course => [course.id, course]));
+  const runningCount = containers.filter(container => container.status === 'running').length;
 
-  const getStatusVariant = (s: string) => {
-    if (s === 'completed') return 'success';
-    if (s === 'in_progress') return 'info';
-    return 'default';
-  };
-
-  const formatDate = (d?: string) => {
-    if (!d) return '--';
-    return new Date(d).toLocaleDateString('zh-CN', { month: 'short', day: 'numeric', year: 'numeric' });
+  const handleStatusChange = (containerId: string, status: RunningContainer['status']) => {
+    setContainers(prev =>
+      prev.map(container =>
+        container.containerId === containerId ? { ...container, status } : container
+      )
+    );
   };
 
   if (loading) {
     return (
       <div>
-        <TopNav title="实验" subtitle="实验工作台" userName={user?.name} />
+        <TopNav title="" userName={user?.name} />
         <Spinner centered />
       </div>
     );
@@ -46,79 +81,106 @@ export const StudentLabs: React.FC = () => {
 
   return (
     <div>
-      <TopNav title="实验" subtitle={`共 ${labs.length} 个可用实验`} userName={user?.name} />
+      <TopNav title="" userName={user?.name} />
 
-      <div className="page-padding">
-        {/* Table Header */}
-        <div style={{
-          borderRadius: 30,
-          border: '1px solid var(--border)',
-          overflow: 'hidden',
-        }}>
-          {/* Header Row */}
-          <div className="table-grid-row table-grid-5col" style={{
-            padding: 'var(--space-3) var(--space-5)',
-            borderBottom: '1px solid var(--border)',
-            background: 'var(--canvas-elevated)',
-          }}>
-            {['实验名称', '课程', '状态', '截止日期', '预计时长'].map((h, idx) => (
-              <p key={h} className={idx >= 3 ? 'hide-mobile' : ''} style={{ fontSize: 14, fontWeight: 500, color: 'var(--ink-tertiary)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                {h}
-              </p>
-            ))}
+      <div className="page-padding student-instances-page">
+        <section className="student-instances-overview">
+          <div className="student-instances-copy">
+            <span>课程开启的实例</span>
+            <p>查看当前课程实验已启动的运行环境。</p>
           </div>
 
-          {/* Data Rows */}
-          {labs.map((lab, i) => (
-            <div
-              key={lab.id}
-              onClick={() => navigate(`/student/labs/${lab.id}`)}
-              className="table-grid-row table-grid-5col"
-              style={{
-                padding: 'var(--space-3) var(--space-5)',
-                borderBottom: i < labs.length - 1 ? '1px solid var(--border)' : 'none',
-                cursor: 'pointer',
-                transition: 'background 0.12s',
-              }}
-            >
-              <div style={{ minWidth: 0 }}>
-                <p style={{ fontSize: 14, fontWeight: 500, color: 'var(--ink)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                  {lab.title}
-                </p>
-                <p style={{ fontSize: 12, color: 'var(--ink-muted)', marginTop: 2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                  {lab.description}
-                </p>
-              </div>
+          <div className="student-instances-summary" aria-label="实例概况">
+            <span>
+              <strong>{containers.length}</strong>
+              全部实例
+            </span>
+            <span>
+              <strong>{runningCount}</strong>
+              运行中
+            </span>
+          </div>
+        </section>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
-                <div style={{
-                  width: 8,
-                  height: 8,
-                  borderRadius: '50%',
-                  background: courseMap.get(lab.courseId)?.coverColor || '#5b6170',
-                  flexShrink: 0,
-                }} />
-                <p style={{ fontSize: 13, color: 'var(--ink-secondary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                  {courseMap.get(lab.courseId)?.code || '--'}
-                </p>
-              </div>
+        {containers.length === 0 ? (
+          <p className="student-instances-empty">暂无已开启的课程实例。</p>
+        ) : (
+          <div className="student-instance-list">
+            {containers.map(container => {
+              const lab = labMap.get(container.labId);
+              const course = lab ? courseMap.get(lab.courseId) : undefined;
+              const memoryPercent = getMemoryPercent(container);
 
-              <div>
-                <Badge variant={getStatusVariant(lab.status)} size="sm">
-                  {lab.status === 'completed' ? '已完成' : lab.status === 'in_progress' ? '进行中' : '未开始'}
-                </Badge>
-              </div>
+              return (
+                <article className="student-instance-card" key={container.id}>
+                  <div className="student-instance-main">
+                    <div className="student-instance-head">
+                      <span className="student-instance-course">
+                        {course?.code ?? '--'} · {course?.name ?? '未知课程'}
+                      </span>
+                      <span className={`student-instance-status student-instance-status-${container.status}`}>
+                        {getStatusLabel(container.status)}
+                      </span>
+                    </div>
 
-              <p className="hide-mobile" style={{ fontSize: 13, color: 'var(--ink-secondary)' }}>
-                {formatDate(lab.dueDate)}
-              </p>
+                    <h2>{container.labTitle}</h2>
 
-              <p className="hide-mobile" style={{ fontSize: 13, color: 'var(--ink-secondary)' }}>
-                {lab.estimatedMinutes} 分钟
-              </p>
-            </div>
-          ))}
-        </div>
+                    <div className="student-instance-meta">
+                      <span>{container.templateName}</span>
+                      <span>{container.containerId}</span>
+                      <span>{formatDateTime(container.startedAt)} 启动</span>
+                    </div>
+                  </div>
+
+                  <div className="student-instance-metrics" aria-label="实例资源">
+                    <span>
+                      <small>运行时间</small>
+                      <strong>{container.uptime}</strong>
+                    </span>
+                    <span>
+                      <small>CPU</small>
+                      <strong>{container.cpuUsage}%</strong>
+                    </span>
+                    <span>
+                      <small>内存</small>
+                      <strong>{container.memoryUsage}MB / {container.memoryLimit}</strong>
+                      <i style={{ width: `${memoryPercent}%` }} aria-hidden="true" />
+                    </span>
+                  </div>
+
+                  <div className="student-instance-actions">
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      disabled={container.status === 'stopped' || container.status === 'error'}
+                      onClick={() => navigate(`/student/labs/${container.labId}`)}
+                    >
+                      进入实例
+                    </Button>
+                    {container.status === 'running' ? (
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => handleStatusChange(container.containerId, 'paused')}
+                      >
+                        暂停
+                      </Button>
+                    ) : (
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        disabled={container.status === 'error'}
+                        onClick={() => handleStatusChange(container.containerId, 'running')}
+                      >
+                        恢复
+                      </Button>
+                    )}
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        )}
       </div>
     </div>
   );

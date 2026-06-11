@@ -1,0 +1,246 @@
+.student-instances-page {
+  gap: 28px;
+}
+
+.student-instances-overview {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.student-instances-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.student-instances-copy span {
+  color: var(--ink);
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 28px;
+}
+
+.student-instances-copy p {
+  color: var(--ink-tertiary);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+}
+
+.student-instances-summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.student-instances-summary span {
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 9999px;
+  background: var(--surface-2);
+  color: var(--ink-tertiary);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.student-instances-summary strong {
+  color: var(--ink);
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.student-instance-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.student-instance-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 0.72fr) auto;
+  align-items: center;
+  gap: 20px;
+  padding: 18px;
+  border-radius: 8px;
+  background: var(--surface-2);
+}
+
+.student-instance-main {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.student-instance-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.student-instance-course {
+  overflow: hidden;
+  color: var(--ink-tertiary);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 18px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.student-instance-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  color: var(--ink-tertiary);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 16px;
+}
+
+.student-instance-status::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.student-instance-status-running {
+  color: var(--success);
+}
+
+.student-instance-status-paused {
+  color: var(--warning);
+}
+
+.student-instance-status-stopped {
+  color: var(--ink-soft);
+}
+
+.student-instance-status-error {
+  color: var(--error);
+}
+
+.student-instance-card h2 {
+  overflow: hidden;
+  color: var(--ink);
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 24px;
+  letter-spacing: 0;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.student-instance-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px 12px;
+  flex-wrap: wrap;
+  color: var(--ink-muted);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 18px;
+}
+
+.student-instance-meta span:nth-child(2) {
+  font-family: var(--font-mono);
+}
+
+.student-instance-metrics {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.student-instance-metrics span {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.student-instance-metrics small {
+  color: var(--ink-tertiary);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 16px;
+}
+
+.student-instance-metrics strong {
+  overflow: hidden;
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 20px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.student-instance-metrics i {
+  display: block;
+  height: 4px;
+  max-width: 100%;
+  border-radius: 999px;
+  background: var(--accent-fill);
+}
+
+.student-instance-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.student-instances-empty {
+  padding: 22px;
+  border-radius: 8px;
+  background: var(--surface-2);
+  color: var(--ink-muted);
+  font-size: 14px;
+  line-height: 22px;
+}
+
+@media (max-width: 1060px) {
+  .student-instance-card {
+    grid-template-columns: 1fr;
+  }
+
+  .student-instance-actions {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 640px) {
+  .student-instances-overview {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .student-instances-summary {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .student-instance-metrics {
+    grid-template-columns: 1fr;
+  }
+
+  .student-instance-actions {
+    flex-direction: column;
+  }
+
+  .student-instance-actions .btn {
+    width: 100%;
+  }
+}
