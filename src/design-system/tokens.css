@@ -1,0 +1,153 @@
+:root {
+  color-scheme: light;
+
+  /* Education platform palette */
+  --canvas: #ffffff;
+  --canvas-elevated: #ffffff;
+  --canvas-neutral: #f5f4f2;
+  --canvas-neutral-hover: #ece9e5;
+  --canvas-neutral-active: #e1ddd7;
+  --canvas-overlay: rgba(91,97,112,0.10);
+  --surface-2: #f7f6f3;
+  --surface-3: #eeece7;
+
+  /* Content */
+  --ink: #202124;
+  --ink-secondary: #4f5358;
+  --ink-tertiary: #76716f;
+  --ink-muted: #76716f;
+  --ink-soft: #a5a5a4;
+  --ink-link: #5b6170;
+  --ink-link-hover: #454b57;
+
+  /* Interactive */
+  --accent: #5b6170;
+  --accent-hover: #454b57;
+  --accent-active: #363c46;
+  --accent-fill: #5b6170;
+  --accent-fill-hover: #454b57;
+  --accent-fill-active: #363c46;
+  --accent-contrast: #ffffff;
+  --accent-contrast-hover: #ffffff;
+  --accent-neutral: #f1f2f3;
+  --accent-neutral-hover: #e5e7e9;
+  --accent-muted: #f1f2f3;
+
+  /* Borders */
+  --border: rgba(31,41,55,0.12);
+  --border-strong: rgba(31,41,55,0.35);
+  --border-overlay: rgba(31,41,55,0.12);
+  --hairline: rgba(31,41,55,0.12);
+  --shadow-menu: 0 18px 38px rgba(31,41,55,0.12);
+  --focus-ring: rgba(91,97,112,0.24);
+  --selection: rgba(91,97,112,0.18);
+
+  /* Sentiment */
+  --error: #8a4a4a;
+  --error-bg: #f5eeee;
+  --error-muted: #f5eeee;
+  --success: #5b6170;
+  --success-bg: #f1f2f3;
+  --success-muted: #f1f2f3;
+  --info: #6a6470;
+  --info-bg: #f2f0f3;
+  --warning: #7d6c4f;
+  --warning-bg: #f5f1e8;
+  --warning-muted: #f5f1e8;
+  --warning-text: #6b5b41;
+
+  /* Radius */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-pill: 9999px;
+
+  /* Spacing */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* Typography */
+  --font-sans: 'Inter', Helvetica, Arial, sans-serif;
+  --font-display: 'Inter', Helvetica, Arial, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* Button sizes */
+  --btn-height: 40px;
+  --btn-sm-height: 32px;
+  --btn-padding: 8px 18px;
+  --btn-sm-padding: 3px 16px;
+
+  /* Layout */
+  --sidebar-width: 296px;
+  --shell-width: 1440px;
+  --content-width: 976px;
+  --topbar-height: 128px;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* Education platform palette */
+  --canvas: #141514;
+  --canvas-elevated: #1a1b1a;
+  --canvas-neutral: #222321;
+  --canvas-neutral-hover: #2a2b29;
+  --canvas-neutral-active: #333431;
+  --canvas-overlay: rgba(238,234,224,0.08);
+  --surface-2: #1d1e1c;
+  --surface-3: #292a27;
+
+  /* Content */
+  --ink: #f0eee8;
+  --ink-secondary: #cbc7be;
+  --ink-tertiary: #a09b91;
+  --ink-muted: #8d887f;
+  --ink-soft: #6e6a63;
+  --ink-link: #c8c2b8;
+  --ink-link-hover: #ede8dd;
+
+  /* Interactive */
+  --accent: #c7c1b6;
+  --accent-hover: #ddd6ca;
+  --accent-active: #f0e8da;
+  --accent-fill: #d8d0c2;
+  --accent-fill-hover: #e9dfcf;
+  --accent-fill-active: #f3eadb;
+  --accent-contrast: #1a1b1a;
+  --accent-contrast-hover: #1a1b1a;
+  --accent-neutral: rgba(216,208,194,0.11);
+  --accent-neutral-hover: rgba(216,208,194,0.17);
+  --accent-muted: rgba(216,208,194,0.13);
+
+  /* Borders */
+  --border: rgba(238,234,224,0.12);
+  --border-strong: rgba(238,234,224,0.28);
+  --border-overlay: rgba(238,234,224,0.14);
+  --hairline: rgba(238,234,224,0.12);
+  --shadow-menu: 0 22px 44px rgba(0,0,0,0.36);
+  --focus-ring: rgba(216,208,194,0.28);
+  --selection: rgba(216,208,194,0.18);
+
+  /* Sentiment */
+  --error: #d6aaa7;
+  --error-bg: rgba(214,170,167,0.12);
+  --error-muted: rgba(214,170,167,0.14);
+  --success: #c7c1b6;
+  --success-bg: rgba(216,208,194,0.11);
+  --success-muted: rgba(216,208,194,0.13);
+  --info: #c7c1b6;
+  --info-bg: rgba(216,208,194,0.11);
+  --warning: #d1bd91;
+  --warning-bg: rgba(209,189,145,0.12);
+  --warning-muted: rgba(209,189,145,0.13);
+  --warning-text: #dbcaa3;
+}

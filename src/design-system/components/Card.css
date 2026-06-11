@@ -1,0 +1,11 @@
+﻿.card { background: transparent; border: none; border-radius: 0; transition: background 0.12s ease; }
+.card-pad-none { padding: 0; }
+.card-pad-sm { padding: var(--space-4); }
+.card-pad-md { padding: var(--space-5); }
+.card-pad-lg { padding: var(--space-6); }
+.card-hover { cursor: pointer; }
+.card-hover:hover { background: var(--canvas-neutral); }
+.card-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: var(--space-4); }
+.card-title { font-size: 14px; font-weight: 600; color: var(--ink); }
+.card-subtitle { font-size: 13px; color: var(--ink-secondary); margin-top: 2px; }
+.card-action { flex-shrink: 0; }

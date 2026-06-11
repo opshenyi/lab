@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">SparkLab mark</title>
+  <desc id="desc">A minimal spark cut from a laboratory flask silhouette.</desc>
+  <defs>
+    <mask id="spark-cut">
+      <rect width="512" height="512" fill="#fff"/>
+      <path
+        fill="#000"
+        d="M258 158l20 54c2 6 7 11 13 13l54 20-54 20c-6 2-11 7-13 13l-20 54-20-54c-2-6-7-11-13-13l-54-20 54-20c6-2 11-7 13-13z"
+      />
+      <circle cx="198" cy="344" r="16" fill="#000"/>
+      <circle cx="315" cy="374" r="12" fill="#000"/>
+    </mask>
+  </defs>
+  <path
+    fill="#202124"
+    mask="url(#spark-cut)"
+    d="M213 58h86c11 0 20 9 20 20v108l97 177c29 53-9 117-69 117H165c-60 0-98-64-69-117l97-177V78c0-11 9-20 20-20Zm21 41v99c0 7-2 14-5 20L132 395c-14 26 5 57 33 57h182c28 0 47-31 33-57l-97-177c-3-6-5-13-5-20V99h-44Z"
+  />
+  <path
+    fill="#202124"
+    fill-opacity=".22"
+    d="M152 397c5-7 15-12 28-12h152c13 0 23 5 28 12l12 22c7 13-2 29-17 29H157c-15 0-24-16-17-29z"
+  />
+</svg>
