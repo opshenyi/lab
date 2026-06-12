@@ -89,7 +89,7 @@ export const StudentCourses: React.FC = () => {
                   </span>
                   <span>
                     <strong>{course.examCount}</strong>
-                    考试
+                    测验
                   </span>
                   <span>
                     <strong>{getCourseVideoCount(course)}</strong>

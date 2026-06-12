@@ -155,13 +155,13 @@ export const StudentCourseDetail: React.FC = () => {
 
         <section className="student-course-detail-section" id="course-exams">
           <div className="student-course-detail-section-head">
-            <h2>课程考试</h2>
+            <h2>课程测验</h2>
             <span>{exams.length} 场</span>
           </div>
 
           <div className="student-course-detail-list">
             {exams.length === 0 ? (
-              <p className="student-course-detail-empty">暂无考试。</p>
+              <p className="student-course-detail-empty">暂无测验。</p>
             ) : exams.map(exam => {
               const canStart = exam.status === 'published' || exam.status === 'active';
               return (

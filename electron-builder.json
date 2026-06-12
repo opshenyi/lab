@@ -1,0 +1,50 @@
+{
+  "appId": "com.sparklab.student",
+  "productName": "SparkLab Student",
+  "artifactName": "${productName}-${version}-${os}-${arch}.${ext}",
+  "directories": {
+    "output": "release/student"
+  },
+  "electronDist": "node_modules/electron/dist",
+  "electronVersion": "38.8.6",
+  "files": [
+    "dist/**/*",
+    "electron/**/*",
+    "package.json"
+  ],
+  "extraResources": [
+    {
+      "from": "build/icon.ico",
+      "to": "icon.ico"
+    },
+    {
+      "from": "build/icon.png",
+      "to": "icon.png"
+    }
+  ],
+  "extraMetadata": {
+    "main": "electron/main.cjs"
+  },
+  "win": {
+    "icon": "build/icon.ico",
+    "target": [
+      {
+        "target": "portable",
+        "arch": [
+          "x64"
+        ]
+      }
+    ]
+  },
+  "portable": {
+    "artifactName": "SparkLab-Student-${version}-portable.${ext}"
+  },
+  "nsis": {
+    "oneClick": false,
+    "perMachine": false,
+    "allowToChangeInstallationDirectory": true,
+    "createDesktopShortcut": true,
+    "createStartMenuShortcut": true,
+    "shortcutName": "SparkLab Student"
+  }
+}

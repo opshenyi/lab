@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useThemeStore, type ThemeMode } from '../../stores/themeStore';
+import { useThemeStore, type ThemeMode, type ThemeTransitionOrigin } from '../../stores/themeStore';
 import './ThemeSwitcher.css';
 
 const themeOptions: Array<{ value: ThemeMode; label: string }> = [
@@ -40,9 +40,18 @@ const ThemeModeIcon: React.FC<{ mode: ThemeMode }> = ({ mode }) => {
   return <SystemIcon />;
 };
 
+const getTransitionOrigin = (element: HTMLElement): ThemeTransitionOrigin => {
+  const rect = element.getBoundingClientRect();
+  return {
+    x: rect.left + rect.width / 2,
+    y: rect.top + rect.height / 2,
+  };
+};
+
 export const ThemeSwitcher: React.FC = () => {
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const triggerIconRef = useRef<HTMLSpanElement>(null);
   const mode = useThemeStore(state => state.mode);
   const setMode = useThemeStore(state => state.setMode);
   const activeOption = themeOptions.find(option => option.value === mode) ?? themeOptions[0];
@@ -74,7 +83,7 @@ export const ThemeSwitcher: React.FC = () => {
         aria-expanded={open}
         onClick={() => setOpen(value => !value)}
       >
-        <span className="theme-trigger-icon"><ThemeModeIcon mode={activeOption.value} /></span>
+        <span className="theme-trigger-icon" ref={triggerIconRef}><ThemeModeIcon mode={activeOption.value} /></span>
         <span className="theme-trigger-label">{activeOption.label}</span>
         <svg className="theme-trigger-chevron" width="14" height="14" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
           <path d="m7 10 5 5 5-5z" />
@@ -92,8 +101,8 @@ export const ThemeSwitcher: React.FC = () => {
                 type="button"
                 role="menuitemradio"
                 aria-checked={selected}
-                onClick={() => {
-                  setMode(option.value);
+                onClick={event => {
+                  setMode(option.value, getTransitionOrigin(triggerIconRef.current ?? event.currentTarget));
                   setOpen(false);
                 }}
               >

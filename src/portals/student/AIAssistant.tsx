@@ -18,6 +18,7 @@ interface HistoryItem {
 }
 
 const assistantExitDelay = 860;
+const brandBaseUrl = `${import.meta.env.BASE_URL}brand/`;
 
 const pythonPrompt = '举几个python列表简单的应用实例，最好是实际应用的例子';
 
@@ -357,6 +358,13 @@ export const StudentAIAssistant: React.FC = () => {
   const canSend = draft.trim().length > 0;
   const hasMessages = messages.length > 0;
 
+  useEffect(() => {
+    document.documentElement.dataset.sparklabAi = 'true';
+    return () => {
+      delete document.documentElement.dataset.sparklabAi;
+    };
+  }, []);
+
   const resetConversation = () => {
     setMessages([]);
     setDraft('');
@@ -646,8 +654,8 @@ export const StudentAIAssistant: React.FC = () => {
           {!hasMessages ? (
             <div className="student-ai-home">
               <span className="student-ai-home-logo" aria-label="SparkLab">
-                <img className="student-ai-home-logo-light" src="/brand/sparklab-wordmark.png?v=pure-wordmark" alt="" aria-hidden="true" />
-                <img className="student-ai-home-logo-dark" src="/brand/sparklab-wordmark-dark.png?v=pure-wordmark" alt="" aria-hidden="true" />
+                <img className="student-ai-home-logo-light" src={`${brandBaseUrl}sparklab-wordmark.png?v=pure-wordmark`} alt="" aria-hidden="true" />
+                <img className="student-ai-home-logo-dark" src={`${brandBaseUrl}sparklab-wordmark-dark.png?v=pure-wordmark`} alt="" aria-hidden="true" />
               </span>
               <form className="student-ai-composer student-ai-composer-home" onSubmit={handleSubmit}>
                 <textarea

@@ -1,8 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 @import './tokens.css';
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { font-size: 16px; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; background: var(--canvas); overflow-y: scroll; scrollbar-gutter: stable; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; scrollbar-width: none; -ms-overflow-style: none; }
+html { font-size: 16px; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; background: var(--canvas); overflow-y: auto; scrollbar-gutter: auto; }
 body { font-family: var(--font-sans); background: var(--canvas); color: var(--ink); line-height: 1.5; min-height: 100vh; overflow-x: hidden; font-feature-settings: 'calt'; transition: background-color 0.18s ease, color 0.18s ease; }
 #root { min-height: 100vh; }
 a { color: var(--ink-link); text-decoration: none; }
@@ -14,11 +14,48 @@ button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visib
   outline-offset: 2px;
 }
 code, pre { font-family: var(--font-mono); }
-::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar { width: 0; height: 0; display: none; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb { background: transparent; }
 ::selection { background: var(--selection); }
 input::placeholder, textarea::placeholder { color: var(--ink-soft); }
+
+@media (prefers-reduced-motion: no-preference) {
+  :root.theme-transitioning *,
+  :root.theme-transitioning *::before,
+  :root.theme-transitioning *::after {
+    transition-duration: 0s !important;
+    transition-delay: 0s !important;
+  }
+
+  :root.theme-transitioning::view-transition-group(root) {
+    animation-duration: 1.06s;
+    animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1);
+  }
+
+  :root.theme-transitioning::view-transition-old(root),
+  :root.theme-transitioning::view-transition-new(root) {
+    mix-blend-mode: normal;
+  }
+
+  :root.theme-transitioning::view-transition-old(root) {
+    animation: none;
+  }
+
+  :root.theme-transitioning::view-transition-new(root) {
+    animation: sparklab-theme-reveal 1.06s cubic-bezier(0.65, 0, 0.35, 1) both;
+  }
+}
+
+@keyframes sparklab-theme-reveal {
+  from {
+    clip-path: circle(0 at var(--theme-transition-x, 50vw) var(--theme-transition-y, 50vh));
+  }
+
+  to {
+    clip-path: circle(var(--theme-transition-radius, 140vmax) at var(--theme-transition-x, 50vw) var(--theme-transition-y, 50vh));
+  }
+}
 
 .page-layout { display: flex; justify-content: center; min-height: 100vh; }
 .column-layout { display: flex; width: 100%; max-width: var(--shell-width); padding-left: var(--sidebar-width); }

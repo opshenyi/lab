@@ -79,6 +79,8 @@
 }
 
 .student-layout-assistant .main-content {
+  position: relative;
+  z-index: 20;
   flex: 1 1 100%;
   width: 100%;
 }

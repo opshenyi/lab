@@ -1,8 +1,26 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { TopNav, Spinner } from '../../design-system/components';
 import { api } from '../../mock/api';
 import { useAuthStore } from '../../stores/authStore';
 import type { Grade } from '../../types';
+import './Grades.css';
+
+const formatDate = (date: string) => new Date(date).toLocaleDateString('zh-CN', {
+  year: 'numeric',
+  month: 'short',
+  day: 'numeric',
+});
+
+const formatPercent = (value: number) => {
+  const fixed = Number.isInteger(value) ? value.toString() : value.toFixed(1);
+  return `${fixed}%`;
+};
+
+const getGradeTone = (percentage: number) => {
+  if (percentage >= 85) return 'strong';
+  if (percentage >= 70) return 'steady';
+  return 'watch';
+};
 
 export const StudentGrades: React.FC = () => {
   const user = useAuthStore(s => s.user);
@@ -11,48 +29,32 @@ export const StudentGrades: React.FC = () => {
 
   useEffect(() => {
     const load = async () => {
-      const data = await api.getGrades();
+      const data = await api.getGrades(user?.id);
       setGrades(data);
       setLoading(false);
     };
     load();
-  }, []);
+  }, [user?.id]);
 
-  // Group grades by course
-  const grouped = grades.reduce<Record<string, Grade[]>>((acc, grade) => {
-    if (!acc[grade.courseName]) acc[grade.courseName] = [];
-    acc[grade.courseName].push(grade);
-    return acc;
-  }, {});
-
-  const getPercentageColor = (pct: number) => {
-    if (pct >= 80) return 'var(--success)';
-    if (pct >= 60) return 'var(--warning)';
-    return 'var(--error)';
-  };
-
-  const getPercentageBg = (pct: number) => {
-    if (pct >= 80) return 'var(--success-muted)';
-    if (pct >= 60) return 'var(--warning-muted)';
-    return 'var(--error-muted)';
-  };
-
-  const formatDate = (d: string) => {
-    return new Date(d).toLocaleDateString('zh-CN', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-    });
-  };
+  const groupedGrades = useMemo(() => {
+    return grades.reduce<Record<string, Grade[]>>((acc, grade) => {
+      if (!acc[grade.courseName]) acc[grade.courseName] = [];
+      acc[grade.courseName].push(grade);
+      return acc;
+    }, {});
+  }, [grades]);
 
   const overallAverage = grades.length > 0
-    ? Math.round(grades.reduce((sum, g) => sum + g.percentage, 0) / grades.length)
+    ? grades.reduce((sum, grade) => sum + grade.percentage, 0) / grades.length
     : 0;
+  const totalScore = grades.reduce((sum, grade) => sum + grade.score, 0);
+  const totalPoints = grades.reduce((sum, grade) => sum + grade.totalPoints, 0);
+  const courseCount = Object.keys(groupedGrades).length;
 
   if (loading) {
     return (
       <div>
-        <TopNav title="成绩" subtitle="你的学业表现" userName={user?.name} />
+        <TopNav title="" userName={user?.name} />
         <Spinner centered />
       </div>
     );
@@ -60,133 +62,84 @@ export const StudentGrades: React.FC = () => {
 
   return (
     <div>
-      <TopNav title="成绩" subtitle={`共 ${grades.length} 场已批改考试`} userName={user?.name} />
+      <TopNav title="" userName={user?.name} />
 
-      <div className="page-padding">
-        {/* Summary Card */}
-        <div style={{
-          display: 'flex',
-          gap: 'var(--space-6)',
-          padding: '28px 24px',
-          border: '1px solid var(--border)',
-          borderRadius: 30,
-        }}>
-          <div>
-            <p style={{ fontSize: 14, fontWeight: 500, color: 'var(--ink-tertiary)', marginBottom: 'var(--space-1)' }}>
-              总平均分
-            </p>
-            <p style={{
-              fontSize: 48,
-              fontWeight: 900,
-              color: getPercentageColor(overallAverage),
-              letterSpacing: '-2.5px',
-              lineHeight: 0.85,
-            }}>
-              {overallAverage}%
-            </p>
+      <div className="page-padding student-grades-page">
+        <section className="student-grades-overview" aria-label="成绩概览">
+          <div className="student-grades-lead">
+            <span>学习表现</span>
+            <p>已批改的课程测验会按课程归档，方便你快速回看表现。</p>
           </div>
-          <div style={{ width: 1, background: 'var(--border)' }} />
-          <div>
-            <p style={{ fontSize: 14, fontWeight: 500, color: 'var(--ink-tertiary)', marginBottom: 'var(--space-1)' }}>
-              已完成考试
-            </p>
-            <p style={{ fontSize: 48, fontWeight: 900, color: 'var(--ink)', letterSpacing: '-2.5px', lineHeight: 0.85 }}>
-              {grades.length}
-            </p>
-          </div>
-          <div style={{ width: 1, background: 'var(--border)' }} />
-          <div>
-            <p style={{ fontSize: 14, fontWeight: 500, color: 'var(--ink-tertiary)', marginBottom: 'var(--space-1)' }}>
-              总分
-            </p>
-            <p style={{ fontSize: 48, fontWeight: 900, color: 'var(--accent)', letterSpacing: '-2.5px', lineHeight: 0.85 }}>
-              {grades.reduce((sum, g) => sum + g.score, 0)}/{grades.reduce((sum, g) => sum + g.totalPoints, 0)}
-            </p>
-          </div>
-        </div>
 
-        {/* Grade Tables by Course */}
-        {Object.entries(grouped).map(([courseName, courseGrades]) => (
-          <div key={courseName} style={{
-            marginTop: 64,
-            border: '1px solid var(--border)',
-            borderRadius: 30,
-            overflow: 'hidden',
-          }}>
-            {/* Course Header */}
-            <div style={{
-              padding: 'var(--space-4) var(--space-5)',
-              borderBottom: '1px solid var(--border)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-            }}>
-              <h3 style={{ fontSize: 22, fontWeight: 600, color: 'var(--ink)', margin: 0, letterSpacing: '-0.396px' }}>
-                {courseName}
-              </h3>
-              <p style={{ fontSize: 16, fontWeight: 400, color: 'var(--ink-secondary)', lineHeight: 1.44 }}>
-                课程平均分：
-                <span style={{
-                  fontWeight: 600,
-                  color: getPercentageColor(
-                    Math.round(courseGrades.reduce((s, g) => s + g.percentage, 0) / courseGrades.length)
-                  ),
-                }}>
-                  {Math.round(courseGrades.reduce((s, g) => s + g.percentage, 0) / courseGrades.length)}%
-                </span>
-              </p>
-            </div>
-
-            {/* Table Header */}
-            <div className="table-grid-row table-grid-4col" style={{
-              padding: 'var(--space-2) var(--space-5)',
-              borderBottom: '1px solid var(--border)',
-            }}>
-              {['考试', '得分', '百分比', '批改日期'].map((h, idx) => (
-                <p key={h} className={idx >= 3 ? 'hide-mobile' : ''} style={{ fontSize: 14, fontWeight: 500, color: 'var(--ink-tertiary)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                  {h}
-                </p>
-              ))}
-            </div>
-
-            {/* Table Rows */}
-            {courseGrades.map((grade, i) => (
-              <div
-                key={grade.id}
-                className="table-grid-row table-grid-4col"
-                style={{
-                  padding: 'var(--space-3) var(--space-5)',
-                  borderBottom: i < courseGrades.length - 1 ? '1px solid var(--border)' : 'none',
-                  transition: 'background 0.12s',
-                }}
-              >
-                <p style={{ fontSize: 14, fontWeight: 500, color: 'var(--ink)' }}>
-                  {grade.examTitle}
-                </p>
-                <p style={{ fontSize: 14, color: 'var(--ink-secondary)', fontFamily: 'var(--font-mono)' }}>
-                  {grade.score}<span style={{ color: 'var(--ink-soft)' }}>/{grade.totalPoints}</span>
-                </p>
-                <div>
-                  <span style={{
-                    display: 'inline-block',
-                    padding: '5px 16px',
-                    borderRadius: 9999,
-                    fontSize: 14,
-                    fontWeight: 600,
-                    fontFamily: 'var(--font-mono)',
-                    color: getPercentageColor(grade.percentage),
-                    background: getPercentageBg(grade.percentage),
-                  }}>
-                    {grade.percentage}%
-                  </span>
-                </div>
-                <p className="hide-mobile" style={{ fontSize: 13, color: 'var(--ink-muted)' }}>
-                  {formatDate(grade.gradedAt)}
-                </p>
-              </div>
-            ))}
+          <div className={`student-grades-average student-grades-average-${getGradeTone(overallAverage)}`}>
+            <small>平均成绩</small>
+            <strong>{grades.length > 0 ? formatPercent(overallAverage) : '--'}</strong>
           </div>
-        ))}
+
+          <div className="student-grades-summary" aria-label="成绩统计">
+            <span>
+              <strong>{grades.length}</strong>
+              已批改
+            </span>
+            <span>
+              <strong>{courseCount}</strong>
+              课程
+            </span>
+            <span>
+              <strong>{totalPoints > 0 ? `${totalScore}/${totalPoints}` : '--'}</strong>
+              累计得分
+            </span>
+          </div>
+        </section>
+
+        {grades.length === 0 ? (
+          <p className="student-grades-empty">暂无已批改成绩。</p>
+        ) : (
+          <section className="student-grades-courses" aria-label="课程成绩">
+            {Object.entries(groupedGrades).map(([courseName, courseGrades]) => {
+              const courseAverage = courseGrades.reduce((sum, grade) => sum + grade.percentage, 0) / courseGrades.length;
+
+              return (
+                <article className="student-grade-course" key={courseName}>
+                  <div className="student-grade-course-head">
+                    <span>
+                      <small>课程</small>
+                      <strong>{courseName}</strong>
+                    </span>
+                    <em className={`student-grade-course-average student-grade-tone-${getGradeTone(courseAverage)}`}>
+                      {formatPercent(courseAverage)}
+                    </em>
+                  </div>
+
+                  <div className="student-grade-list">
+                    {courseGrades.map((grade) => (
+                      <div className="student-grade-row" key={grade.id}>
+                        <div className="student-grade-info">
+                          <strong>{grade.examTitle}</strong>
+                          <small>{formatDate(grade.gradedAt)} 批改</small>
+                        </div>
+
+                        <div className="student-grade-progress" aria-hidden="true">
+                          <i style={{ width: `${Math.min(100, Math.max(0, grade.percentage))}%` }} />
+                        </div>
+
+                        <div className="student-grade-result">
+                          <strong>
+                            {grade.score}
+                            <span>/{grade.totalPoints}</span>
+                          </strong>
+                          <em className={`student-grade-percent student-grade-tone-${getGradeTone(grade.percentage)}`}>
+                            {formatPercent(grade.percentage)}
+                          </em>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </article>
+              );
+            })}
+          </section>
+        )}
       </div>
     </div>
   );

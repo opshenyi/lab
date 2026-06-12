@@ -7,12 +7,13 @@ export const Login: React.FC = () => {
   const login = useAuthStore(s => s.login);
   const navigate = useNavigate();
   const handleLogin = (role: UserRole) => { login(role); navigate(`/${role}`); };
+  const isDesktopStudentClient = import.meta.env.MODE === 'desktop';
 
   const roles = [
     { key: 'student' as UserRole, title: '学生', desc: '访问课程，完成实验，参加考试' },
     { key: 'teacher' as UserRole, title: '教师', desc: '管理课程与题库，创建实验和考试' },
     { key: 'admin' as UserRole, title: '管理员', desc: '管理容器模板，监控资源，配置系统' },
-  ];
+  ].filter(role => !isDesktopStudentClient || role.key === 'student');
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>

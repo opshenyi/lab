@@ -18,6 +18,8 @@ const sidebarItems: SidebarItem[] = [
   { key: 'grades', label: '成绩管理', path: '/teacher/grades', icon: <GradeIcon /> },
 ];
 
+const brandBaseUrl = `${import.meta.env.BASE_URL}brand/`;
+
 export const TeacherLayout: React.FC = () => {
   const { isAuthenticated } = useAuthStore();
   if (!isAuthenticated) return <Navigate to="/login" />;
@@ -30,8 +32,8 @@ export const TeacherLayout: React.FC = () => {
             items={sidebarItems}
             logo={
               <span className="sidebar-logo-art" aria-label="SparkLab">
-                <img className="sidebar-logo-img sidebar-logo-img-light" src="/brand/sparklab-wordmark.png?v=pure-wordmark" alt="" aria-hidden="true" />
-                <img className="sidebar-logo-img sidebar-logo-img-dark" src="/brand/sparklab-wordmark-dark.png?v=pure-wordmark" alt="" aria-hidden="true" />
+                <img className="sidebar-logo-img sidebar-logo-img-light" src={`${brandBaseUrl}sparklab-wordmark.png?v=pure-wordmark`} alt="" aria-hidden="true" />
+                <img className="sidebar-logo-img sidebar-logo-img-dark" src={`${brandBaseUrl}sparklab-wordmark-dark.png?v=pure-wordmark`} alt="" aria-hidden="true" />
               </span>
             }
             bottom={<ThemeSwitcher />}

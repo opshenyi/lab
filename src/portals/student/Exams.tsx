@@ -1,9 +1,27 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { TopNav, Card, Badge, Button, Spinner } from '../../design-system/components';
+import { TopNav, Button, Spinner } from '../../design-system/components';
 import { api } from '../../mock/api';
 import { useAuthStore } from '../../stores/authStore';
 import type { Exam } from '../../types';
+import './Exams.css';
+
+const statusMeta: Record<Exam['status'], { label: string; tone: string }> = {
+  active: { label: '进行中', tone: 'active' },
+  published: { label: '可参加', tone: 'available' },
+  draft: { label: '待开放', tone: 'locked' },
+  ended: { label: '已结束', tone: 'ended' },
+};
+
+const canStart = (exam: Exam) => exam.status === 'published' || exam.status === 'active';
+
+const formatDateTime = (date: string) => new Date(date).toLocaleDateString('zh-CN', {
+  month: 'short',
+  day: 'numeric',
+  weekday: 'short',
+  hour: '2-digit',
+  minute: '2-digit',
+});
 
 export const StudentExams: React.FC = () => {
   const navigate = useNavigate();
@@ -20,31 +38,23 @@ export const StudentExams: React.FC = () => {
     load();
   }, []);
 
-  const getStatusVariant = (s: string) => {
-    if (s === 'active') return 'success';
-    if (s === 'published') return 'info';
-    if (s === 'ended') return 'default';
-    return 'warning';
-  };
-
-  const formatDateTime = (d: string) => {
-    return new Date(d).toLocaleDateString('zh-CN', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
+  const sortedExams = useMemo(() => {
+    return [...exams].sort((a, b) => {
+      const aPriority = canStart(a) ? 0 : a.status === 'draft' ? 1 : 2;
+      const bPriority = canStart(b) ? 0 : b.status === 'draft' ? 1 : 2;
+      return aPriority - bPriority || new Date(a.startTime).getTime() - new Date(b.startTime).getTime();
     });
-  };
+  }, [exams]);
 
-  const canStart = (exam: Exam) => {
-    return exam.status === 'published' || exam.status === 'active';
-  };
+  const availableCount = exams.filter(canStart).length;
+  const lockedCount = exams.filter(exam => exam.status === 'draft').length;
+  const totalPoints = exams.reduce((sum, exam) => sum + exam.totalPoints, 0);
+  const nextExam = sortedExams.find(canStart);
 
   if (loading) {
     return (
       <div>
-        <TopNav title="考试" subtitle="你的考试" userName={user?.name} />
+        <TopNav title="" userName={user?.name} />
         <Spinner centered />
       </div>
     );
@@ -52,89 +62,83 @@ export const StudentExams: React.FC = () => {
 
   return (
     <div>
-      <TopNav title="考试" subtitle={`共 ${exams.length} 场考试`} userName={user?.name} />
+      <TopNav title="" userName={user?.name} />
 
-      <div className="page-padding">
-        {exams.map((exam) => (
-          <Card key={exam.id} padding="none"
-            style={{ border: '1px solid var(--border)', borderRadius: 30, padding: '28px 24px', marginBottom: 'var(--space-4)', transition: 'background 0.12s' }}
-          >
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 'var(--space-5)',
-            }}>
-              {/* Left accent bar */}
-              <div style={{
-                width: 4,
-                height: 48,
-                borderRadius: 2,
-                background: canStart(exam) ? 'var(--accent)' : 'var(--border)',
-                flexShrink: 0,
-              }} />
+      <div className="page-padding student-exams-page">
+        <section className="student-exams-overview" aria-label="考试概览">
+          <div className="student-exams-focus">
+            <span>当前测验</span>
+            <strong>{nextExam?.title ?? '暂无开放测验'}</strong>
+            <p>
+              {nextExam
+                ? `${nextExam.courseName} · ${formatDateTime(nextExam.startTime)}`
+                : '新的课程测验开放后，会在这里优先显示。'}
+            </p>
+          </div>
 
-              {/* Exam Info */}
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', marginBottom: 'var(--space-1)' }}>
-                  <h3 style={{ fontSize: 22, fontWeight: 600, color: 'var(--ink)', margin: 0, letterSpacing: '-0.396px', lineHeight: 1.25 }}>
-                    {exam.title}
-                  </h3>
-                  <Badge variant={getStatusVariant(exam.status)} size="sm">
-                    {exam.status === 'active' ? '进行中' : exam.status === 'published' ? '已发布' : exam.status === 'ended' ? '已结束' : exam.status === 'draft' ? '草稿' : exam.status}
-                  </Badge>
-                </div>
-                <p style={{ fontSize: 16, fontWeight: 400, color: 'var(--ink-secondary)', lineHeight: 1.44, marginBottom: 'var(--space-2)' }}>
-                  {exam.description}
-                </p>
-                <p style={{ fontSize: 14, fontWeight: 500, color: 'var(--ink-tertiary)' }}>
-                  {exam.courseName}
-                </p>
-              </div>
+          <div className="student-exams-summary" aria-label="测验统计">
+            <span>
+              <strong>{availableCount}</strong>
+              可参加
+            </span>
+            <span>
+              <strong>{lockedCount}</strong>
+              待开放
+            </span>
+            <span>
+              <strong>{totalPoints}</strong>
+              总分值
+            </span>
+          </div>
+        </section>
 
-              {/* Details */}
-              <div style={{ display: 'flex', gap: 'var(--space-6)', flexShrink: 0, alignItems: 'center' }}>
-                <div style={{ textAlign: 'center' }}>
-                  <p style={{ fontSize: 14, fontWeight: 500, color: 'var(--ink-tertiary)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 2 }}>
-                    开始时间
-                  </p>
-                  <p style={{ fontSize: 13, color: 'var(--ink-secondary)', fontFamily: 'var(--font-mono)' }}>
-                    {formatDateTime(exam.startTime)}
-                  </p>
-                </div>
-                <div style={{ textAlign: 'center' }}>
-                  <p style={{ fontSize: 14, fontWeight: 500, color: 'var(--ink-tertiary)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 2 }}>
-                    时长
-                  </p>
-                  <p style={{ fontSize: 13, color: 'var(--ink-secondary)', fontFamily: 'var(--font-mono)' }}>
-                    {exam.durationMinutes} 分钟
-                  </p>
-                </div>
-                <div style={{ textAlign: 'center' }}>
-                  <p style={{ fontSize: 14, fontWeight: 500, color: 'var(--ink-tertiary)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 2 }}>
-                    分值
-                  </p>
-                  <p style={{ fontSize: 13, color: 'var(--ink-secondary)', fontFamily: 'var(--font-mono)' }}>
-                    {exam.totalPoints}
-                  </p>
+        <section className="student-exams-list" aria-label="考试列表">
+          {sortedExams.length === 0 ? (
+            <p className="student-exams-empty">暂无考试安排。</p>
+          ) : sortedExams.map((exam) => {
+            const meta = statusMeta[exam.status];
+            const startable = canStart(exam);
+
+            return (
+              <article className="student-exam-row" key={exam.id}>
+                <div className={`student-exam-status student-exam-status-${meta.tone}`}>
+                  <i aria-hidden="true" />
+                  {meta.label}
                 </div>
 
-                {canStart(exam) ? (
-                  <Button
-                    variant="primary"
-                    size="sm"
-                    onClick={() => navigate(`/student/exams/${exam.id}`)}
-                  >
-                    开始
-                  </Button>
-                ) : (
-                  <Button variant="ghost" size="sm" disabled>
-                    {exam.status === 'draft' ? '暂不可用' : '已结束'}
-                  </Button>
-                )}
-              </div>
-            </div>
-          </Card>
-        ))}
+                <div className="student-exam-main">
+                  <span>{exam.courseName}</span>
+                  <h2>{exam.title}</h2>
+                  <p>{exam.description}</p>
+                </div>
+
+                <div className="student-exam-meta" aria-label="考试信息">
+                  <span>
+                    <small>开始</small>
+                    <strong>{formatDateTime(exam.startTime)}</strong>
+                  </span>
+                  <span>
+                    <small>时长</small>
+                    <strong>{exam.durationMinutes} 分钟</strong>
+                  </span>
+                  <span>
+                    <small>分值</small>
+                    <strong>{exam.totalPoints} 分</strong>
+                  </span>
+                </div>
+
+                <Button
+                  variant={startable ? 'primary' : 'ghost'}
+                  size="sm"
+                  disabled={!startable}
+                  onClick={() => navigate(`/student/exams/${exam.id}`)}
+                >
+                  {startable ? '进入测验' : exam.status === 'draft' ? '待开放' : '已结束'}
+                </Button>
+              </article>
+            );
+          })}
+        </section>
       </div>
     </div>
   );

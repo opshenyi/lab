@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { StudentLayout } from './layouts/StudentLayout';
 import { TeacherLayout } from './layouts/TeacherLayout';
 import { AdminLayout } from './layouts/AdminLayout';
@@ -24,12 +24,15 @@ import { AdminUsers } from './portals/admin/Users';
 import { AdminContainers } from './portals/admin/Containers';
 import { AdminSystem } from './portals/admin/System';
 import { useThemeStore } from './stores/themeStore';
+import { DesktopWindowControls } from './desktop/DesktopWindowControls';
 
 const App: React.FC = () => {
   useThemeStore(state => state.resolvedTheme);
+  const Router = import.meta.env.MODE === 'desktop' ? HashRouter : BrowserRouter;
 
   return (
-    <BrowserRouter>
+    <Router>
+      {import.meta.env.MODE === 'desktop' && <DesktopWindowControls />}
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/" element={<Navigate to="/login" />} />
@@ -59,7 +62,7 @@ const App: React.FC = () => {
           <Route path="system" element={<AdminSystem />} />
         </Route>
       </Routes>
-    </BrowserRouter>
+    </Router>
   );
 };
 

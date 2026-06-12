@@ -14,6 +14,11 @@
   flex-shrink: 0;
 }
 
+:root[data-sparklab-desktop="true"] .topnav {
+  height: calc(var(--topbar-height) + 28px);
+  padding: 28px 60px 0 44px;
+}
+
 .topnav-left {
   display: none;
   align-items: center;
@@ -145,6 +150,11 @@
     padding: 0 16px;
     max-width: none;
     justify-content: space-between;
+  }
+
+  :root[data-sparklab-desktop="true"] .topnav {
+    height: 112px;
+    padding: 44px 16px 0;
   }
 
   .topnav-left {
