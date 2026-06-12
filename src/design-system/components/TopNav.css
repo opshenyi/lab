@@ -81,8 +81,11 @@
   text-decoration: none;
 }
 
-.topnav-profile:focus {
-  box-shadow: inset 0 0 0 1px var(--border);
+.topnav-profile:focus,
+.topnav-profile:focus-visible,
+.topnav-profile:active {
+  outline: none;
+  box-shadow: none;
 }
 
 .topnav-avatar-container {

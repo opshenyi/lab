@@ -2,7 +2,7 @@
 @import './tokens.css';
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { font-size: 16px; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; background: var(--canvas); }
+html { font-size: 16px; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; background: var(--canvas); overflow-y: scroll; scrollbar-gutter: stable; }
 body { font-family: var(--font-sans); background: var(--canvas); color: var(--ink); line-height: 1.5; min-height: 100vh; overflow-x: hidden; font-feature-settings: 'calt'; transition: background-color 0.18s ease, color 0.18s ease; }
 #root { min-height: 100vh; }
 a { color: var(--ink-link); text-decoration: none; }
@@ -21,7 +21,7 @@ code, pre { font-family: var(--font-mono); }
 input::placeholder, textarea::placeholder { color: var(--ink-soft); }
 
 .page-layout { display: flex; justify-content: center; min-height: 100vh; }
-.column-layout { display: flex; width: 100%; max-width: var(--shell-width); }
+.column-layout { display: flex; width: 100%; max-width: var(--shell-width); padding-left: var(--sidebar-width); }
 .main-content { flex: 1; min-width: 0; min-height: 100vh; display: flex; flex-direction: column; }
 
 .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
@@ -45,7 +45,7 @@ input::placeholder, textarea::placeholder { color: var(--ink-soft); }
 
 @media (max-width: 1200px) { .grid-4 { grid-template-columns: repeat(2, 1fr); } .grid-3 { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 768px) {
-  .column-layout { max-width: none; }
+  .column-layout { max-width: none; padding-left: 0; }
   .page-padding { padding: 0 16px 48px; gap: 32px; max-width: none; }
   .grid-4 { grid-template-columns: repeat(2, 1fr); }
   .grid-3 { grid-template-columns: 1fr; }

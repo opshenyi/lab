@@ -30,9 +30,10 @@ interface SidebarProps {
   items: SidebarItem[];
   logo?: React.ReactNode;
   bottom?: React.ReactNode;
+  onItemClick?: (item: SidebarItem, event: React.MouseEvent<HTMLAnchorElement>) => void;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ items, logo, bottom }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ items, logo, bottom, onItemClick }) => {
   const { isOpen, close } = useSidebar();
 
   return (
@@ -46,9 +47,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ items, logo, bottom }) => {
               <NavLink
                 key={item.key}
                 to={item.path}
-                className={({ isActive }) => `sidebar-link ${isActive ? 'sidebar-link-active' : ''}`}
+                className={({ isActive }) => `sidebar-link sidebar-link-${item.key} ${isActive ? 'sidebar-link-active' : ''}`}
                 end={item.path.split('/').length <= 3}
-                onClick={close}
+                onClick={(event) => {
+                  onItemClick?.(item, event);
+                  if (!event.defaultPrevented) close();
+                }}
               >
                 <span className="sidebar-link-icon">{item.icon}</span>
                 <span className="sidebar-link-label">{item.label}</span>
